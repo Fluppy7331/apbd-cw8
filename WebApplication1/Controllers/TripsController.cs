@@ -20,6 +20,10 @@ namespace WebApplication1
         [HttpGet]
         public async Task<IActionResult> GetTrips()
         {
+            if (await DoesTripExist(id))
+            {
+                return NotFound();
+            }
             var trips = await _tripsService.GetTrips();
             return Ok(trips);
         }
