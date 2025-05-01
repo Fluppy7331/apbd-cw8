@@ -16,16 +16,18 @@ namespace WebApplication1
             _tripsService = tripsService;
         }
 
-
         [HttpGet]
         public async Task<IActionResult> GetTrips()
         {
-            if (await DoesTripExist(id))
+            try
             {
-                return NotFound();
+                var trips = await _tripsService.GetTrips();
+                return Ok(trips);
             }
-            var trips = await _tripsService.GetTrips();
-            return Ok(trips);
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Wystąpił błąd serwera.");
+            }
         }
         
     }
