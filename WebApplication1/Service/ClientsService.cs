@@ -191,7 +191,7 @@ public class ClientsService : IClientsService
         
         //Tutaj używamy transakcji, aby zapewnić, że operacja usunięcia klienta z wycieczki jest atomowa podobnie jak w metodzie RegisterClientOnTrip.
         //Jeśli klient nie jest zarejestrowany na wycieczkę, transakcja zostanie wycofana, a zmiany nie zostaną zapisane w bazie danych.
-
+        //Tutaj podobnie jeśli się któryś z warunkow nie jest spelniony rzucamy błąd InvalidOperationException, aby obsłużyć te przypadki w kontrolerze z odpowiednim komentarzem i zwracamy kod błędu.
         using (SqlConnection conn = new SqlConnection(_connectionString))
         {
             await conn.OpenAsync();
