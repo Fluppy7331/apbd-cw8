@@ -199,8 +199,6 @@ public class ClientsService : IClientsService
             using (SqlCommand isAlreadyRegisteredCmd = new SqlCommand(isAlreadyRegisteredCommand, conn, transaction))
             using (SqlCommand deleteCmd = new SqlCommand(deleteCommand, conn, transaction))
             {
-                try
-                {
                     isAlreadyRegisteredCmd.Parameters.AddWithValue("@clientId", clientId);
                     isAlreadyRegisteredCmd.Parameters.AddWithValue("@tripId", tripId);
                     deleteCmd.Parameters.AddWithValue("@clientId", clientId);
@@ -210,17 +208,12 @@ public class ClientsService : IClientsService
 
                     if (isAlreadyRegistered == null)
                     {
+                        transaction.Rollback();
                         throw new InvalidOperationException("Klient nie jest zarejestrowany na tej wycieczce");
                     }
 
                     await deleteCmd.ExecuteNonQueryAsync();
                     transaction.Commit();
-                }
-                catch
-                {
-                    transaction.Rollback();
-                    throw;
-                }
             }
         }
     }
