@@ -20,6 +20,11 @@ public class TripsService : ITripsService
         FROM Trip t
         LEFT JOIN Country_Trip tc ON t.IdTrip = tc.IdTrip
         LEFT JOIN Country c ON tc.IdCountry = c.IdCountry";
+        
+        //To query zwraca wszystkie wycieczki i przypisane do nich kraje. Używamy LEFT JOIN, aby uwzględnić wycieczki bez przypisanych krajów.
+        //Jeśli wycieczka nie ma przypisanych krajów, to w kolumnie CountryName będzie NULL.
+        //Jeśli wycieczka ma przypisane kraje, to w kolumnie CountryName będą ich nazwy. W każdej nowej lini będzie nowa nazwa kraju, i za pomoca sprawdzania czy juz mam informacje 
+        //o tej wycieczce dodaje do niej nowy kraj, lub tworze nowa wycieczke i z pierwszym krajem do niej kraj.
 
         using (SqlConnection conn = new SqlConnection(_connectionString))
         using (SqlCommand cmd = new SqlCommand(command, conn))

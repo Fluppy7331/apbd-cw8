@@ -21,6 +21,11 @@ public class ClientsService : IClientsService
     LEFT JOIN Country_Trip tc ON t.IdTrip = tc.IdTrip
     LEFT JOIN Country c ON tc.IdCountry = c.IdCountry
     WHERE ct.IdClient = @clientId";
+        
+        //to query łączy tabele Client_Trip, Trip, Country_Trip i Country, aby uzyskać szczegóły wycieczek przypisanych do klienta o podanym identyfikatorze.
+        //Używamy INNER JOIN, aby uzyskać tylko te wycieczki, które są przypisane do klienta.
+        //Używamy LEFT JOIN, aby uwzględnić wycieczki bez przypisanych krajów.
+        //Dodaje kraje w podobny sposób jak w metodzie GetTrips, czyli sprawdzam czy już mam informacje o tej wycieczce i dodaje do niej nowy kraj, lub tworze nowa wycieczke i z pierwszym krajem do niej kraj.
 
         using (SqlConnection conn = new SqlConnection(_connectionString))
         using (SqlCommand cmd = new SqlCommand(command, conn))
@@ -80,6 +85,10 @@ public class ClientsService : IClientsService
         INSERT INTO Client (FirstName, LastName, Email, Telephone, Pesel)
         OUTPUT INSERTED.IdClient
         VALUES (@FirstName, @LastName, @Email, @Telephone, @Pesel);";
+        
+        //Używamy OUTPUT INSERTED.IdClient, aby zwrócić IdClient nowo dodanego klienta, ponieważ w zadaniu w skrypcie jest nadane IDENTITY dla IdClient.
+        //To rozwiazanie pomaga w uniknięciu dodatkowego zapytania SELECT, aby uzyskać IdClient po dodaniu klienta.
+        //Jeśli się któryś z warunkow nie jest spelniony rzucamy błąd InvalidOperationException, aby obsłużyć te przypadki w kontrolerze z odpowiednim komentarzem i zwracamy kod błędu.
 
         int newClientId;
 
@@ -122,6 +131,10 @@ public class ClientsService : IClientsService
             INSERT INTO Client_Trip (IdClient, IdTrip, RegisteredAt, PaymentDate) 
             VALUES (@clientId, @tripId, @registeredAt ,NULL);";
 
+        //Tutaj uzywamy wielu komend SQL, aby sprawdzić czy klient jest już zarejestrowany na wycieczkę, czy nie przekroczono maksymalnej liczby uczestników oraz aby dodać nowego klienta do wycieczki.
+        //Używamy transakcji, aby zapewnić, że wszystkie operacje są atomowe i nie zostaną wprowadzone częściowe zmiany w bazie danych.
+        //Jeśli którakolwiek z operacji się nie powiedzie, transakcja zostanie wycofana, a zmiany nie zostaną zapisane w bazie danych.
+        //Jeśli się któryś z warunkow nie jest spelniony rzucamy błąd InvalidOperationException, aby obsłużyć te przypadki w kontrolerze z odpowiednim komentarzem i zwracamy kod błędu.
 
         int registeredAt = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
         using (SqlConnection conn = new SqlConnection(_connectionString))
@@ -175,6 +188,9 @@ public class ClientsService : IClientsService
 
         string deleteCommand = @"
         DELETE FROM Client_Trip WHERE IdClient = @clientId AND IdTrip = @tripId";
+        
+        //Tutaj używamy transakcji, aby zapewnić, że operacja usunięcia klienta z wycieczki jest atomowa podobnie jak w metodzie RegisterClientOnTrip.
+        //Jeśli klient nie jest zarejestrowany na wycieczkę, transakcja zostanie wycofana, a zmiany nie zostaną zapisane w bazie danych.
 
         using (SqlConnection conn = new SqlConnection(_connectionString))
         {
